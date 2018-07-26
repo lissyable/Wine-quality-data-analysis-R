@@ -1,0 +1,270 @@
+---
+title: "wine quality initial analysis"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+Import to R the following file:
+
+```{r}
+winequality <- read.csv(file =               "http://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv", header = TRUE, sep = ";")
+```
+
+Check data characteristics. Is there missing data? 
+
+```{r}
+str(winequality)
+summary(winequality)
+sum(is.na(winequality) == TRUE)
+```
+There are 4898 observation and 12 variables.
+
+There is no missing data
+
+Visualize quality
+
+```{r}
+library(ggplot2)
+ggplot(data = winequality,aes(x = winequality$quality)) + geom_histogram(bins = 20, fill = "yellow", col = "green")
+```
+
+fixed.acidity
+
+```{r}
+ggplot(data = winequality,aes(x = winequality$fixed.acidity)) + geom_histogram(bins = 20, fill = "yellow", col = "green")
+```
+
+volatile.acidity
+
+```{r}
+ggplot(data = winequality,aes(x = winequality$volatile.acidity)) + geom_histogram(bins = 20, fill = "yellow", col = "green")
+```
+
+citric.acid
+
+```{r}
+ggplot(data = winequality,aes(x = winequality$citric.acid)) + geom_histogram(bins = 20, fill = "yellow", col = "green")
+```
+
+residual.sugar
+
+```{r}
+ggplot(data = winequality,aes(x = winequality$residual.sugar)) + geom_histogram(bins = 20, fill = "yellow", col = "green")
+```
+chlorides
+
+```{r}
+ggplot(data = winequality,aes(x = winequality$chlorides)) + geom_histogram(bins = 20, fill = "yellow", col = "green")
+```
+
+free.sulfur.dioxide
+```{r}
+ggplot(data = winequality,aes(x = winequality$free.sulfur.dioxide)) + geom_histogram(bins = 20, fill = "yellow", col = "green")
+```
+total.sulfur.dioxide
+
+```{r}
+ggplot(data = winequality,aes(x = winequality$total.sulfur.dioxide)) + geom_histogram(bins = 20, fill = "yellow", col = "green")
+```
+
+density
+```{r}
+ggplot(data = winequality,aes(x = winequality$density)) + geom_histogram(bins = 20, fill = "yellow", col = "green")
+```
+
+pH
+```{r}
+ggplot(data = winequality,aes(x = winequality$pH)) + geom_histogram(bins = 20, fill = "yellow", col = "green")
+```
+sulphates
+```{r}
+ggplot(data = winequality,aes(x = winequality$sulphates)) + geom_histogram(bins = 20, fill = "yellow", col = "green")
+```
+
+alcohol
+```{r}
+ggplot(data = winequality,aes(x = winequality$alcohol)) + geom_histogram(bins = 20, fill = "yellow", col = "green")
+```
+Reduce the levels of rating for quality to three levels as high, medium and low
+
+```{r}
+winequality$quality[which(winequality$quality %in% c(3,4,5))] = "low"
+winequality$quality[which(winequality$quality %in% c(6))] = "medium"
+winequality$quality[which(winequality$quality %in% c(7,8,9))] = "high"
+winequality$quality <- as.factor(winequality$quality)
+```
+fixed.acidity Vs quality
+
+```{r}
+ggplot(winequality, aes(x = fixed.acidity, fill = quality)) +
+geom_density(alpha=0.5, aes(fill=factor(quality))) + labs(title="quality and fixed.acidity") +
+scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) + theme_grey()
+```
+
+volatile.acidity Vs quality
+
+```{r}
+ggplot(winequality, aes(x = volatile.acidity, fill = quality)) +
+geom_density(alpha=0.5, aes(fill=factor(quality))) + labs(title="quality and volatile.acidity") +
+scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) + theme_grey()
+```
+This plot helps us note that high quality wines have less amount of volatile acidity.
+citric.acid Vs quality
+
+```{r}
+ggplot(winequality, aes(x = citric.acid, fill = quality)) +
+geom_density(alpha=0.5, aes(fill=factor(quality))) + labs(title="quality and citric.acid") +
+scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) + theme_grey()
+```
+Again, per our observation we note that higher quality wines have higher levels of citric acid
+residual.sugar Vs quality
+
+```{r}
+ggplot(winequality, aes(x = residual.sugar, fill = quality)) +
+geom_density(alpha=0.5, aes(fill=factor(quality))) + labs(title="quality and residual.sugar") +
+scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) + theme_grey()
+```
+
+chlorides Vs quality
+
+```{r}
+ggplot(winequality, aes(x = chlorides, fill = quality)) +
+geom_density(alpha=0.5, aes(fill=factor(quality))) + labs(title="quality and chlorides") +
+scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) + theme_grey()
+```
+
+free.sulfur.dioxide Vs quality
+
+```{r}
+ggplot(winequality, aes(x = free.sulfur.dioxide, fill = quality)) +
+geom_density(alpha=0.5, aes(fill=factor(quality))) + labs(title="quality and free.sulfur.dioxide") +
+scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) + theme_grey()
+```
+
+total.sulfur.dioxide Vs quality
+
+```{r}
+ggplot(winequality, aes(x = total.sulfur.dioxide, fill = quality)) +
+geom_density(alpha=0.5, aes(fill=factor(quality))) + labs(title="quality and total.sulfur.dioxide") +
+scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) + theme_grey()
+```
+
+density Vs quality
+
+```{r}
+ggplot(winequality, aes(x = density, fill = quality)) +
+geom_density(alpha=0.5, aes(fill=factor(quality))) + labs(title="quality and density") +
+scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) + theme_grey()
+```
+We can see that best quality wines have lowest density 
+pH Vs quality
+
+```{r}
+ggplot(winequality, aes(x = pH, fill = quality)) +
+geom_density(alpha=0.5, aes(fill=factor(quality))) + labs(title="quality and pH") +
+scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) + theme_grey()
+```
+
+sulphates Vs quality
+
+```{r}
+ggplot(winequality, aes(x = sulphates, fill = quality)) +
+geom_density(alpha=0.5, aes(fill=factor(quality))) + labs(title="quality and sulphates") +
+scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) + theme_grey()
+```
+
+
+alcohol Vs quality
+
+```{r}
+ggplot(winequality, aes(x = alcohol, fill = quality)) +
+geom_density(alpha=0.5, aes(fill=factor(quality))) + labs(title="quality and alcohol") +
+scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) + theme_grey()
+```
+As per our observation, good quality wines have higher levels of alcohol.
+
+Within the same range of density, best quality wines have highest level of alcohol.
+
+```{r}
+#install.packages("gridExtra")
+library(gridExtra)
+f1 <- ggplot(winequality, aes(x = density, y = alcohol, col = quality, shape = quality)) + geom_point()
+f2 <- ggplot(winequality, aes(x = density, y = residual.sugar, col = quality, shape = quality)) + geom_point()
+f3 <- ggplot(winequality, aes(x = density, y = total.sulfur.dioxide, col = quality, shape = quality)) + geom_point()
+grid.arrange(f1, f2, f3, ncol=3)
+```
+Within the same range of density, best quality wines have highest level of alcohol.In the above 3 graphs, holding density (mostly from the lower end of density), higher residual.sugar or alcohol, or total sulfur dioxide seem to have better quality respectively.
+
+
+```{r}
+e1 <- ggplot(winequality, aes(x = alcohol, y = residual.sugar, col = quality, shape = quality)) + geom_point()
+e2 <- ggplot(winequality, aes(x = alcohol, y = chlorides, col = quality, shape = quality)) + geom_point()
+grid.arrange(e1, e2, ncol=2)
+```
+In the above 2 graphs, holding residual.sugar or chlorides, higher alcohol level seem to have better quality.
+
+```{r}
+ggplot(winequality, aes(x = free.sulfur.dioxide, y = total.sulfur.dioxide, col = quality, shape = quality)) + geom_point()
+```
+it seems that there are more better quality wine under 150 total sulfur dioxide.
+
+```{r}
+d1 <- ggplot(data = winequality, aes(y = density, x = alcohol))+geom_point()+geom_smooth(method = "lm", se = F)
+d2 <- ggplot(data = winequality, aes(y = total.sulfur.dioxide, x = alcohol))+geom_point()+geom_smooth(method = "lm", se = F)
+d3 <- ggplot(data = winequality, aes(y = chlorides, x = alcohol))+geom_point()+geom_smooth(method = "lm", se = F)
+d4 <- ggplot(data = winequality, aes(y = residual.sugar, x = alcohol))+geom_point()+geom_smooth(method = "lm", se = F)
+grid.arrange(d1, d2, d3, d4, ncol=2, nrow = 2)
+```
+Alcohol is strongly correlated to density, and weakly correlated to residual sugar, total sulfur dioxide, and chlorides.
+
+```{r}
+c1 <- ggplot(data = winequality, aes(y = residual.sugar, x = density))+geom_point()+geom_smooth(method = "lm", se = F)
+c2 <- ggplot(data = winequality, aes(y = total.sulfur.dioxide, x = density))+geom_point()+geom_smooth(method = "lm", se = F)
+c3 <- ggplot(data = winequality, aes(y = chlorides, x = density))+geom_point()+geom_smooth(method = "lm", se = F)
+c4 <- ggplot(data = winequality, aes(y = free.sulfur.dioxide, x = density))+geom_point()+geom_smooth(method = "lm", se = F)
+grid.arrange(c1, c2, c3, c4, ncol=2, nrow = 2)
+```
+Density is strongly correlated to residual sugar, and weakly correlated to chlorides, total sulfur dioxide, free sulfur dioxide.
+
+```{r}
+b1 <- ggplot(data = winequality, aes(y = density, x = residual.sugar))+geom_point()+geom_smooth(method = "lm", se = F)
+b2 <- ggplot(data = winequality, aes(y = alcohol, x = residual.sugar))+geom_point()+geom_smooth(method = "lm", se = F)
+b3 <- ggplot(data = winequality, aes(y = total.sulfur.dioxide, x =  residual.sugar))+geom_point()+geom_smooth(method = "lm", se = F)
+b4 <- ggplot(data = winequality, aes(y = pH, x = residual.sugar))+geom_point()+geom_smooth(method = "lm", se = F)
+grid.arrange(b1, b2, b3, b4, ncol=2, nrow = 2)
+```
+Residual sugar level is strongly positively correlated to density, weakly negatively correlated to alcohol and positively correlated to total sulfur dioxide. Residual sugar is not correlated to pH.
+
+```{r}
+z1 <- ggplot(data = winequality, aes(y = density, x = total.sulfur.dioxide))+geom_point()+geom_smooth(method = "lm", se = F)
+z2 <- ggplot(data = winequality, aes(y = alcohol, x = total.sulfur.dioxide))+geom_point()+geom_smooth(method = "lm", se = F)
+grid.arrange(z1, z2, ncol=2)
+```
+
+Total sulfur dioxide is strongly correlated to alcohol.
+
+```{r}
+a1 <- ggplot(data = winequality, aes(y = density, x = chlorides))+geom_point()+geom_smooth(method = "lm", se = F)
+a2 <- ggplot(data = winequality, aes(y = alcohol, x = chlorides))+geom_point()+geom_smooth(method = "lm", se = F)
+a3 <-ggplot(data = winequality, aes(y = total.sulfur.dioxide, x = chlorides))+geom_point()+geom_smooth(method = "lm", se = F)
+grid.arrange(a1, a2, a3, ncol=3)
+```
+
+Chlorides is positively correlated to density although not a strong relationship. Chlorides is slightly correlated to total.sulfur.dioxide.
+
+```{r}
+
+p1 <- ggplot(data = winequality, aes(y = density, x = fixed.acidity))+geom_point()+geom_smooth(method = "lm", se = F)
+p2 <- ggplot(data = winequality, aes(y = pH, x = fixed.acidity))+geom_point()+geom_smooth(method = "lm", se = F)
+grid.arrange(p1, p2, ncol=2)
+```
+Fixed acidity is negatively correlated to pH and positively correlated to density weakly.
