@@ -1,0 +1,53 @@
+---
+title: "wine quality prediction_multiple regression"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+Import to R the following file:
+
+```{r}
+winequality <- read.csv(file =               "http://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv", header = TRUE, sep = ";")
+```
+
+Divide the data to training and testing groups.
+
+```{r}
+wine_split <- sample(nrow(winequality), floor(nrow(winequality)*0.7))
+train <- winequality[wine_split,]
+test <- winequality[-wine_split,]
+```
+
+Use the multiple Regression algorithm to predict the quality of wine using its attributes.
+
+```{r}
+model_lm <- lm(quality ~ ., data = train)
+summary(model_lm)
+```
+
+Now we can use backward elimination method
+
+```{r}
+library(MASS) 
+stepB <- stepAIC(model_lm, direction= "backward", trace=TRUE)
+summary(stepB)
+```
+So we end up with using variables: fixed.acidity, volatile.acidity, residual.sugar, 
+    free.sulfur.dioxide, density, pH, sulphates, alcohol
+```{r}
+new_model <- lm(quality ~ fixed.acidity + volatile.acidity + residual.sugar + 
+    free.sulfur.dioxide + density + pH + sulphates + alcohol, data = train)
+prediction = predict(new_model, interval="prediction", newdata = test)
+prediction
+```
+
+
