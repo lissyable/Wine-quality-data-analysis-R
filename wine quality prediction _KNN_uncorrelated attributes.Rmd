@@ -1,0 +1,129 @@
+---
+title: "wine quality prediction"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+Import to R the following file:
+
+```{r}
+winequality <- read.csv(file =               "http://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv", header = TRUE, sep = ";")
+```
+
+Check data characteristics. Is there missing data? 
+
+```{r}
+str(winequality)
+summary(winequality)
+sum(is.na(winequality) == TRUE)
+```
+There is no missing data
+
+The correlation between the attributes other than wine quality?
+
+```{r}
+wine <- winequality[,-12]
+wine_cor <- cor(wine)
+#install.packages("corrplot")
+library(corrplot)
+corrplot(wine_cor, method = "number")
+```
+Taking a look at the correlation coefficients r for the predictor variables, we see that density is strongly correlated with  residual.sugar (r=0.84) and alcohol (r=???0.78), and moderately correlated with total.sulfur.dioxide (r=0.53).  free.sulfur.dioxide and total.sulfur.dioxide are also moderately correlated with each other (r=0.62) although this is trivially known because of course, free sulfur dioxide is incorporated into the total sulfur dioxide. So, we should actually remove the variables residual.sugar and density, as well as total.sulfur.dioxide because of its direct relationship with free.sulfur.dioxide, in order to address problems with multicollinearity. We're going to withhold removing alcohol, to see the if the initial effect of removing just these three correlated variables is enough to address the issue.
+
+```{r}
+winequality <- subset(winequality, select = -c(4,7,8))
+str(winequality)
+wine <- winequality[,-9]
+```
+
+
+Reduce the levels of rating for quality to three levels as high, medium and low
+
+```{r}
+winequality$quality[which(winequality$quality %in% c(3,4,5))] = "low"
+winequality$quality[which(winequality$quality %in% c(6))] = "medium"
+winequality$quality[which(winequality$quality %in% c(7,8,9))] = "high"
+winequality$quality <- as.factor(winequality$quality)
+```
+
+Graph the frequency distribution of wine quality.
+
+```{r}
+#install.packages("ggplot2")
+library(ggplot2)
+ggplot(winequality, aes(x = quality, fill = quality)) +
+  geom_bar(aes(y = prop.table(..count..) * 100), position='dodge') +
+  geom_text(aes(y = prop.table(..count..) * 100 + 0.5, 
+                  label = paste0(round(prop.table(..count..) * 100, 2), '%')), 
+              stat = 'count', 
+              position = position_dodge(.9), 
+              size = 3) + 
+    labs(x = 'quality', y = 'percent', fill = 'quality', title = 'quality')
+```
+Normalize the data set.
+
+```{r}
+normalize <- function(x) {
+  return ((x - min(x)) / (max(x) - min(x))) }
+winedata <- as.data.frame(lapply(wine, normalize))
+```
+
+
+Divide the data to training and testing groups.
+
+```{r}
+split_data <- sample(nrow(winedata), floor(nrow(winedata)*0.7))
+winedata_train <- winedata[split_data,]
+winedata_test <- winedata[-split_data,]
+
+winedata_train_labels <- winequality[split_data, 9]
+winedata_test_labels <- winequality[-split_data, 9]
+```
+
+Use the KNN algorithm to predict the quality of wine using its attributes.
+
+```{r}
+#install.packages("class")
+#install.packages("gmodels")
+library(class)
+library(gmodels)
+
+winedata_test_pred <- knn(train = winedata_train, test = winedata_test, cl = winedata_train_labels, k=10, prob = TRUE)
+winedata_test_pred
+```
+
+Evaluate the model performance.
+
+```{r}
+CrossTable(x=winedata_test_labels, y=winedata_test_pred, prop.chisq=FALSE)
+
+k <- 1:10
+for(x in k){
+  winedata_test_pred <- knn(winedata_train, winedata_test,
+                    winedata_train_labels, k = x)
+  accuracy <- mean(winedata_test_pred == winedata_test_labels)
+  cat('\n','When k =', x, "accuracy is ", accuracy)
+}
+```
+As we can see, the model has the highest accuracy of 66% when k=1.Then the next highest accuracy is 60% when k=3 and k=5. When we repeat the process for k from 1 to 50 we see some decrease and then increase.
+```{r}
+accuracy <- rep(0, 50)
+k <- 1:50
+for(x in k){
+  winedata_test_pred <- knn(winedata_train, winedata_test,
+                    winedata_train_labels, k = x)
+  accuracy[x] <- mean(winedata_test_pred == winedata_test_labels)
+  }
+plot(k, accuracy, type = 'b')
+```
+
+
